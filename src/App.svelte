@@ -1,8 +1,9 @@
 <script lang="ts">
+  import Editor from './components/Editor.svelte';
   import notesStore, { addNote, getNoteById } from './stores/notes';
 
-  export let notes = [];
-  export let selectedNote = undefined;
+  let notes = [];
+  let selectedNote = undefined;
 
   // subscribe to get notes when they are updated
   notesStore.subscribe((value) => {
@@ -17,14 +18,20 @@
   const onAddNote = () => {
     addNote();
   };
+
+  const onEditorChange = (evt) => {
+    console.log(evt.detail.json);
+  };
 </script>
 
-<main class="flex min-h-screen bg-zinc-900">
-  <div class="w-4/12 flex flex-col bg-zinc-800 p-3">
-    <div class="flex items-center mb-3">
-      <h1 class="flex-grow text-2xl text-zinc-400">Notes</h1>
+<main class="grid grid-cols-12 min-h-screen w-full bg-neutral-900">
+  <div
+    class="col-span-5 md:col-span-4 lg:col-span-3 flex flex-col bg-neutral-800"
+  >
+    <div class="flex items-center h-14 border-b border-neutral-500 px-5">
+      <h1 class="flex-grow text-xl text-zinc-400">Notes</h1>
       <button
-        class="text-md text-zinc-500 hover:text-zinc-300 p-3"
+        class="text-md text-zinc-500 hover:text-zinc-300"
         title="New note"
         on:click={onAddNote}
       >
@@ -52,7 +59,7 @@
         </svg>
       </button>
     </div>
-    <div class="grow">
+    <div class="grow p-5">
       {#if notes.length === 0}
         <p class="text-sm text-center text-zinc-400">No Notes</p>
       {:else}
@@ -61,7 +68,7 @@
             <li
               class="text-sm text-zinc-400 hover:text-zinc-200 rounded-md cursor-pointer mb-2 px-5 py-3 {note.id ===
               selectedNote.id
-                ? 'text-zinc-200 bg-zinc-700'
+                ? 'text-zinc-200 bg-neutral-700'
                 : ''}"
               on:click={() => onSelectNote(note.id)}
             >
@@ -72,10 +79,11 @@
       {/if}
     </div>
   </div>
-  <div class="w-8/12 bg-zinc-900 text-zinc-200 px-5 py-3">
+  <div
+    class="h-full col-span-7 md:col-span-8 lg:col-span-9 bg-neutral-900 text-zinc-200"
+  >
     {#if selectedNote}
-      <div>{selectedNote?.title}</div>
-      <div>{selectedNote?.content}</div>
+      <Editor content={selectedNote.content} on:change={onEditorChange} />
     {/if}
   </div>
 </main>
