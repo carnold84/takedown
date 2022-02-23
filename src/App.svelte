@@ -7,9 +7,9 @@
   let saving = false;
   let timeoutId = null;
 
-  const onSelectNote = (id) => {
-    if (id) {
-      editedNote = { ...getNoteById(notes, id) };
+  const onSelectNote = (note) => {
+    if (note) {
+      editedNote = { ...note };
     }
   };
 
@@ -49,7 +49,8 @@
     notes = value;
 
     if (!editedNote) {
-      onSelectNote(value[0].id);
+      console.log(notes[0]);
+      onSelectNote(notes[0]);
     }
   });
 </script>
