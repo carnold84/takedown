@@ -3,7 +3,7 @@ export interface Data {
 }
 
 export interface Note {
-  content: string;
+  content: object;
   id: string;
   title: string;
 }
@@ -24,12 +24,19 @@ if (response === null) {
   data = JSON.parse(response);
 }
 
+console.log(JSON.stringify(data.notes[0]));
+
 export default {
   addNote() {
-    const note = {
+    const note: Note = {
+      content: {
+        type: 'doc',
+        content: [
+          { type: 'paragraph', content: [{ type: 'text', text: 'New note' }] },
+        ],
+      },
       id: `id-${new Date().getTime()}`,
-      content: '',
-      title: 'New Note',
+      title: 'New note',
     };
 
     const nextNotes = [...this.data.notes, note];
@@ -42,7 +49,23 @@ export default {
   getNotes() {
     return data.notes;
   },
+  updateNote({ content, id, title }) {
+    const nextNotes: Array<Note> = this.data.notes.map((note) => {
+      if (note.id === id) {
+        return {
+          ...note,
+          content,
+          title,
+        };
+      }
+
+      return note;
+    });
+
+    this.setNotes(nextNotes);
+  },
   setNotes(notes) {
-    setState({ ...this.data, notes });
+    this.data = { ...this.data, notes };
+    setState(this.data);
   },
 };

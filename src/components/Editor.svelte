@@ -44,7 +44,7 @@
 
 <div class="w-full h-full">
   <div
-    class="w-full flex items-center h-14 bg-neutral-900 border-b border-neutral-600 px-5"
+    class="w-full flex items-center h-14 bg-neutral-900 border-y border-neutral-600 px-5"
   >
     {#if editor}
       <EditorButton
