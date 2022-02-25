@@ -1,6 +1,6 @@
 <script lang="ts">
   import Editor from './components/Editor.svelte';
-  import notesStore, { addNote, getNoteById, updateNote } from './stores/notes';
+  import notesStore, { addNote, updateNote } from './stores/notes';
 
   let editedNote;
   let notes = [];
@@ -49,7 +49,6 @@
     notes = value;
 
     if (!editedNote) {
-      console.log(notes[0]);
       onSelectNote(notes[0]);
     }
   });

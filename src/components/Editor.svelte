@@ -2,7 +2,16 @@
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import { Editor } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
+  import TaskList from '@tiptap/extension-task-list';
+  import TaskItem from '@tiptap/extension-task-item';
   import EditorButton from './EditorButton.svelte';
+  import TaskListIcon from '../icons/TaskListIcon.svelte';
+  import Heading1Icon from '../icons/Heading1Icon.svelte';
+  import Heading2Icon from '../icons/Heading2Icon.svelte';
+  import Heading3Icon from '../icons/Heading3Icon.svelte';
+  import UnorderedListIcon from '../icons/UnorderedListIcon.svelte';
+  import OrderedListIcon from '../icons/OrderedListIcon.svelte';
+  import ParagraphIcon from '../icons/ParagraphIcon.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -20,7 +29,13 @@
         },
       },
       element,
-      extensions: [StarterKit],
+      extensions: [
+        StarterKit,
+        TaskList,
+        TaskItem.configure({
+          nested: true,
+        }),
+      ],
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected
         editor = editor;
@@ -52,20 +67,45 @@
         on:click={() =>
           editor.chain().focus().toggleHeading({ level: 1 }).run()}
       >
-        H1
+        <Heading1Icon />
       </EditorButton>
       <EditorButton
         isActive={editor.isActive('heading', { level: 2 })}
         on:click={() =>
           editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
-        H2
+        <Heading2Icon />
+      </EditorButton>
+      <EditorButton
+        isActive={editor.isActive('heading', { level: 3 })}
+        on:click={() =>
+          editor.chain().focus().toggleHeading({ level: 3 }).run()}
+      >
+        <Heading3Icon />
       </EditorButton>
       <EditorButton
         isActive={editor.isActive('paragraph')}
         on:click={() => editor.chain().focus().setParagraph().run()}
       >
-        P
+        <ParagraphIcon />
+      </EditorButton>
+      <EditorButton
+        isActive={editor.isActive('taskList')}
+        on:click={() => editor.chain().focus().toggleTaskList().run()}
+      >
+        <TaskListIcon />
+      </EditorButton>
+      <EditorButton
+        isActive={editor.isActive('bulletList')}
+        on:click={() => editor.commands.toggleBulletList()}
+      >
+        <UnorderedListIcon />
+      </EditorButton>
+      <EditorButton
+        isActive={editor.isActive('orderedList')}
+        on:click={() => editor.commands.toggleOrderedList()}
+      >
+        <OrderedListIcon />
       </EditorButton>
     {/if}
   </div>
@@ -88,5 +128,42 @@
 
   :global(.editor_styles p) {
     @apply text-sm;
+  }
+
+  :global(.editor_styles ul[data-type='taskList']) {
+    list-style: none;
+    padding: 0;
+  }
+
+  :global(.editor_styles ul[data-type='taskList'] p) {
+    @apply m-0;
+  }
+
+  :global(.editor_styles ul[data-type='taskList'] li) {
+    @apply flex items-center;
+  }
+
+  :global(.editor_styles ul[data-type='taskList'] li > label) {
+    @apply flex mr-3 select-none;
+  }
+
+  :global(.editor_styles ul[data-type='taskList'] li > div) {
+    flex: 1 1 auto;
+  }
+
+  :global(.editor_styles > * + *) {
+    @apply mt-3;
+  }
+
+  :global(.editor_styles ul) {
+    @apply list-disc list-inside px-1 py-0;
+  }
+
+  :global(.editor_styles ol) {
+    @apply list-decimal list-inside px-1 py-0 text-sm;
+  }
+
+  :global(.editor_styles ul p, .editor_styles ol p) {
+    @apply text-sm inline;
   }
 </style>

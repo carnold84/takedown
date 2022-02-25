@@ -9,7 +9,7 @@
 <style>
   .editor_button {
     @apply text-sm text-zinc-500;
-    @apply border border-neutral-500 rounded-md mr-2 px-3 py-1;
+    @apply rounded-md mr-2 p-1;
   }
 
   .editor_button:hover {
@@ -17,6 +17,6 @@
   }
 
   .editor_button.is_active {
-    @apply text-zinc-300 bg-zinc-700;
+    @apply text-zinc-200 bg-neutral-600;
   }
 </style>
