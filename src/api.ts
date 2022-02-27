@@ -24,9 +24,7 @@ if (response === null) {
   data = JSON.parse(response);
 }
 
-console.log(JSON.stringify(data.notes[0]));
-
-export default {
+const api = {
   addNote() {
     const note: Note = {
       content: {
@@ -49,7 +47,18 @@ export default {
   getNotes() {
     return data.notes;
   },
-  updateNote({ content, id, title }) {
+  removeNote({ id }: Note) {
+    const nextNotes: Array<Note> = this.data.notes.filter((note) => {
+      return note.id !== id;
+    });
+
+    this.setNotes(nextNotes);
+  },
+  setNotes(notes) {
+    this.data = { ...this.data, notes };
+    setState(this.data);
+  },
+  updateNote({ content, id, title }: Note) {
     const nextNotes: Array<Note> = this.data.notes.map((note) => {
       if (note.id === id) {
         return {
@@ -64,8 +73,6 @@ export default {
 
     this.setNotes(nextNotes);
   },
-  setNotes(notes) {
-    this.data = { ...this.data, notes };
-    setState(this.data);
-  },
 };
+
+export default api;

@@ -21,6 +21,18 @@ export const getNoteById = (notes, id) => {
   })[0];
 };
 
+export const removeNote = (note) => {
+  api.removeNote(note);
+
+  notesStore.update((value) => {
+    const nextNotesStore = value.filter(({ id }) => {
+      return id !== note.id;
+    });
+
+    return nextNotesStore;
+  });
+};
+
 export const updateNote = (note) => {
   api.updateNote(note);
 };

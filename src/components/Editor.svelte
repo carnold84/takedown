@@ -1,5 +1,10 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import {
+    createEventDispatcher,
+    onMount,
+    onDestroy,
+    afterUpdate,
+  } from 'svelte';
   import { Editor } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
   import TaskList from '@tiptap/extension-task-list';
@@ -18,6 +23,14 @@
   let element;
   let editor;
   export let content;
+  let prevContent;
+
+  $: {
+    if (prevContent !== undefined && prevContent !== content) {
+      editor.commands.setContent(content);
+    }
+    prevContent = content;
+  }
 
   onMount(() => {
     editor = new Editor({
@@ -43,8 +56,6 @@
       onUpdate: ({ editor }) => {
         const json = editor.getJSON();
 
-        console.log(json);
-
         dispatch('change', { json });
       },
     });
@@ -57,9 +68,9 @@
   });
 </script>
 
-<div class="w-full h-full">
+<div class="w-full h-full flex flex-col">
   <div
-    class="w-full flex items-center h-14 bg-neutral-900 border-y border-neutral-600 px-5"
+    class="w-full flex flex-shrink-0 items-center h-14 bg-neutral-900 border-y border-neutral-600 px-5"
   >
     {#if editor}
       <EditorButton
@@ -110,7 +121,7 @@
     {/if}
   </div>
 
-  <div bind:this={element} class="h-full w-full bg-neutral-900" />
+  <div bind:this={element} class="w-full overflow-auto bg-neutral-900" />
 </div>
 
 <style scoped>
