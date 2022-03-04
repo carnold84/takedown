@@ -119,13 +119,15 @@
     class="h-full flex flex-col w-7/12 lg:w-8/12 xl:w-9/12 bg-neutral-900 text-zinc-200"
   >
     {#if editedNote}
-      <div class="w-full flex items-center px-5 py-4">
+      <div
+        class="flex flex-shrink-0 items-center h-14 border-b border-neutral-600 px-5"
+      >
         <input
-          class="grow text-xl bg-transparent outline-0"
+          class="grow text-xl bg-transparent outline-0 focus:outline-none"
           value={title}
           on:input={onChange}
         />
-        <div class=" text-zinc-500">
+        <div class="text-zinc-500">
           {#if saving}
             <SavingIcon />
           {:else}

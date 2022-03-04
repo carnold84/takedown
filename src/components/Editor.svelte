@@ -70,7 +70,7 @@
 
 <div class="w-full h-full flex flex-col">
   <div
-    class="w-full flex flex-shrink-0 items-center h-14 bg-neutral-900 border-y border-neutral-600 px-5"
+    class="w-full flex flex-shrink-0 items-center h-14 bg-neutral-900 border-b border-neutral-600 px-5"
   >
     {#if editor}
       <EditorButton
