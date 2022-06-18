@@ -1,10 +1,5 @@
 <script>
-  import {
-    createEventDispatcher,
-    onMount,
-    onDestroy,
-    afterUpdate,
-  } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import { Editor } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
   import TaskList from '@tiptap/extension-task-list';

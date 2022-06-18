@@ -12,7 +12,7 @@ export interface Note {
 const response = localStorage.getItem('takedown');
 let data: Data;
 
-const setState = (state) => {
+const setState = (state: Data) => {
   localStorage.setItem('takedown', JSON.stringify(state));
 };
 
@@ -48,18 +48,18 @@ const api = {
     return data.notes;
   },
   removeNote({ id }: Note) {
-    const nextNotes: Array<Note> = this.data.notes.filter((note) => {
+    const nextNotes: Array<Note> = this.data.notes.filter((note: Note) => {
       return note.id !== id;
     });
 
     this.setNotes(nextNotes);
   },
-  setNotes(notes) {
+  setNotes(notes: Array<Note>) {
     this.data = { ...this.data, notes };
     setState(this.data);
   },
   updateNote({ content, id, title }: Note) {
-    const nextNotes: Array<Note> = this.data.notes.map((note) => {
+    const nextNotes: Array<Note> = this.data.notes.map((note: Note) => {
       if (note.id === id) {
         return {
           ...note,

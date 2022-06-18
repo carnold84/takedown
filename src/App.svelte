@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Note } from './api';
+
   import Editor from './components/Editor.svelte';
   import AddIcon from './icons/AddIcon.svelte';
   import CompleteIcon from './icons/CompleteIcon.svelte';
@@ -10,13 +12,13 @@
     updateNote,
   } from './stores/notesStore';
 
-  let editedNote;
-  let notes = [];
+  let editedNote: Note;
+  let notes: Array<Note> = [];
   let saving = false;
-  let timeoutId = null;
-  let title;
+  let timeoutId: ReturnType<typeof setTimeout> = null;
+  let title: string;
 
-  const onSelectNote = (note) => {
+  const onSelectNote = (note: Note) => {
     if (note) {
       editedNote = { ...note };
       title = editedNote.title;
@@ -27,11 +29,11 @@
     addNote();
   };
 
-  const onRemoveNote = (note) => {
+  const onRemoveNote = (note: Note) => {
     removeNote(note);
   };
 
-  const debouncedUpdateNote = (data) => {
+  const debouncedUpdateNote = (data: Note) => {
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {

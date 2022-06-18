@@ -15,16 +15,16 @@ export const addNote = () => {
   });
 };
 
-export const getNoteById = (notes, id) => {
+export const getNoteById = (notes: Array<Note>, id: string) => {
   return notes.filter((note) => {
     return note.id === id;
   })[0];
 };
 
-export const removeNote = (note) => {
+export const removeNote = (note: Note) => {
   api.removeNote(note);
 
-  notesStore.update((value) => {
+  notesStore.update((value: Array<Note>) => {
     const nextNotesStore = value.filter(({ id }) => {
       return id !== note.id;
     });
@@ -33,7 +33,7 @@ export const removeNote = (note) => {
   });
 };
 
-export const updateNote = (note) => {
+export const updateNote = (note: Note) => {
   api.updateNote(note);
 };
 
