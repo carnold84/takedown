@@ -9,10 +9,10 @@ export const addNote = () => {
   const note = api.addNote();
 
   notesStore.update((value) => {
-    const nextNotesStore = [...value, note];
-
-    return nextNotesStore;
+    return [...value, note];
   });
+
+  return note;
 };
 
 export const getNoteById = (notes, id) => {
@@ -25,16 +25,27 @@ export const removeNote = (note) => {
   api.removeNote(note);
 
   notesStore.update((value) => {
-    const nextNotesStore = value.filter(({ id }) => {
+    return value.filter(({ id }) => {
       return id !== note.id;
     });
-
-    return nextNotesStore;
   });
 };
 
-export const updateNote = (note) => {
-  api.updateNote(note);
+export const updateNote = (newNote) => {
+  api.updateNote(newNote);
+
+  notesStore.update((value) => {
+    return value.map((note) => {
+      if (note.id === newNote.id) {
+        return {
+          ...note,
+          ...newNote,
+        };
+      }
+
+      return note;
+    });
+  });
 };
 
 export default notesStore;

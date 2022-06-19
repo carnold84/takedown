@@ -18,6 +18,9 @@ const config = {
         },
       },
     },
+    fontFamily: {
+      sans: ['Noto Sans', 'sans-serif'],
+    },
   },
 
   plugins: [],
