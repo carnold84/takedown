@@ -11,7 +11,7 @@
     updateNote,
   } from './stores/notesStore';
 
-  let editedNote;
+  let editedNote = null;
   let isMenuVisible = false;
   let isSaving = false;
   let notes = [];
@@ -26,6 +26,8 @@
     if (note) {
       editedNote = { ...note };
       title = editedNote.title;
+    } else {
+      editedNote = null;
     }
 
     isMenuVisible = false;
@@ -42,6 +44,7 @@
     removeNote(note);
 
     if (note.id === editedNote.id) {
+      console.log('CLEAR');
       onSelectNote(undefined);
     }
   };
@@ -132,20 +135,20 @@
           <ul class="list-none">
             {#each notes as note}
               <li
-                class="flex items-center h-12 text-sm text-zinc-400 hover:text-zinc-200 rounded-md cursor-pointer mb-2 pl-5 pr-2 {note.id ===
-                editedNote.id
+                class="flex items-center h-12 text-sm text-zinc-400 hover:text-zinc-200 rounded-md cursor-pointer mb-2 {note.id ===
+                editedNote?.id
                   ? 'text-zinc-200 bg-neutral-600'
                   : ''}"
               >
                 <div
-                  class="grow text-ellipsis overflow-hidden whitespace-nowrap"
+                  class="h-full flex items-center grow text-ellipsis overflow-hidden whitespace-nowrap pl-5"
                   on:click={() => onSelectNote(note)}
                 >
-                  {editedNote.id === note.id ? title : note.title}
+                  {editedNote?.id === note.id ? title : note.title}
                 </div>
-                <div>
+                <div class="px-2">
                   <button
-                    class="flex items-center justify-center h-10 w-10 text-zinc-500 hover:text-zinc-300 ml-2"
+                    class="flex items-center justify-center h-10 w-10 text-zinc-500 hover:text-zinc-300"
                     on:click={() => onRemoveNote(note)}
                   >
                     <RemoveIcon />
