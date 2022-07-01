@@ -52,13 +52,15 @@
   const debouncedUpdateNote = (data) => {
     clearTimeout(timeoutId);
 
+    const updatedNote = {
+      ...editedNote,
+      ...data,
+    };
+
     timeoutId = setTimeout(() => {
       isSaving = true;
 
-      updateNote({
-        ...editedNote,
-        ...data,
-      });
+      updateNote(updatedNote);
       setTimeout(() => {
         isSaving = false;
       }, 500);
@@ -108,13 +110,6 @@
       </button>
       <h1 class="flex-grow font-sans text-lg text-zinc-400">Takedown</h1>
     </div>
-    <button
-      class="text-md text-zinc-500 hover:text-zinc-300"
-      title="New note"
-      on:click={onAddNote}
-    >
-      <AddIcon />
-    </button>
   </div>
   <div class="flex flex-grow w-full overflow-hidden bg-neutral-900">
     <div
@@ -128,6 +123,18 @@
       class:flex={isMenuVisible === true}
       class:hidden={isMenuVisible === false}
     >
+      <div
+        class="h-12 flex items-center justify-between bg-neutral-800 border-b border-neutral-500 p-3"
+      >
+        <h2 class="text-zinc-400">Notes</h2>
+        <button
+          class="text-md text-zinc-500 hover:text-zinc-300"
+          title="New note"
+          on:click={onAddNote}
+        >
+          <AddIcon />
+        </button>
+      </div>
       <div class="overflow-auto p-5">
         {#if notes.length === 0}
           <p class="text-sm text-center text-zinc-400 my-3">No Notes</p>
