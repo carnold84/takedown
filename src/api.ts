@@ -1,78 +1,80 @@
-export interface Data {
-  notes: Array<Note>;
-}
+import localforage from 'localforage';
+import type { Data, Note } from './types';
 
-export interface Note {
-  content: object;
-  id: string;
-  title: string;
-}
-
-// load data
-const response = localStorage.getItem('takedown');
+const store = localforage.createInstance({
+  name: 'takedown',
+});
 let data: Data;
 
-const setState = (state) => {
-  localStorage.setItem('takedown', JSON.stringify(state));
+const addNote = () => {
+  const note: Note = {
+    content: {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'New note' }] },
+      ],
+    },
+    id: `id-${new Date().getTime()}`,
+    title: 'New note',
+  };
+
+  const nextNotes = [...data.notes, note];
+
+  saveNotes(nextNotes);
+
+  return note;
 };
 
-if (response === null) {
-  const defaultData = { notes: [] };
-  setState(defaultData);
-  data = defaultData;
-} else {
-  data = JSON.parse(response);
-}
+const fetchNotes = async () => {
+  try {
+    const notes: Note[] = await store.getItem('notes');
 
-const api = {
-  addNote() {
-    const note: Note = {
-      content: {
-        type: 'doc',
-        content: [
-          { type: 'paragraph', content: [{ type: 'text', text: 'New note' }] },
-        ],
-      },
-      id: `id-${new Date().getTime()}`,
-      title: 'New note',
-    };
+    if (notes === null) {
+      const defaultData: Data = { notes: [] };
+      data = defaultData;
+    } else {
+      data = { notes };
+    }
 
-    const nextNotes = [...this.data.notes, note];
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-    this.setNotes(nextNotes);
+const removeNote = ({ id }: Note) => {
+  const nextNotes: Array<Note> = data.notes.filter((note: Note) => {
+    return note.id !== id;
+  });
+
+  saveNotes(nextNotes);
+};
+
+const saveNotes = (notes: Note[]) => {
+  store.setItem('notes', notes);
+};
+
+const updateNote = ({ content, id, title }: Note) => {
+  const nextNotes: Array<Note> = data.notes.map((note: Note) => {
+    if (note.id === id) {
+      return {
+        ...note,
+        content,
+        title,
+      };
+    }
 
     return note;
-  },
-  data,
-  getNotes() {
-    return data.notes;
-  },
-  removeNote({ id }: Note) {
-    const nextNotes: Array<Note> = this.data.notes.filter((note) => {
-      return note.id !== id;
-    });
+  });
 
-    this.setNotes(nextNotes);
-  },
-  setNotes(notes) {
-    this.data = { ...this.data, notes };
-    setState(this.data);
-  },
-  updateNote({ content, id, title }: Note) {
-    const nextNotes: Array<Note> = this.data.notes.map((note) => {
-      if (note.id === id) {
-        return {
-          ...note,
-          content,
-          title,
-        };
-      }
+  saveNotes(nextNotes);
+};
 
-      return note;
-    });
-
-    this.setNotes(nextNotes);
-  },
+const api = {
+  addNote,
+  fetchNotes,
+  removeNote,
+  updateNote,
 };
 
 export default api;

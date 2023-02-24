@@ -1,51 +1,79 @@
-import api, { Note } from '../api';
+import api from '../api';
 import { writable } from 'svelte/store';
+import type { Note, State } from 'src/types';
 
-const initialState: Array<Note> = api.getNotes();
+const initialState: State = {
+  isLoading: true,
+  notes: [],
+};
 
 const notesStore = writable(initialState);
 
 export const addNote = () => {
-  const note = api.addNote();
+  const note: Note = api.addNote();
 
-  notesStore.update((value) => {
-    return [...value, note];
+  notesStore.update((state) => {
+    return {
+      ...state,
+      notes: [...state.notes, note],
+    };
   });
 
   return note;
 };
 
-export const getNoteById = (notes, id) => {
+export const getNoteById = (notes: Note[], id: string) => {
   return notes.filter((note) => {
     return note.id === id;
   })[0];
 };
 
-export const removeNote = (note) => {
+const init = async () => {
+  const data = await api.fetchNotes();
+
+  console.log(data);
+
+  notesStore.update(() => {
+    return {
+      isLoading: false,
+      notes: data.notes,
+    };
+  });
+};
+
+export const removeNote = (note: Note) => {
   api.removeNote(note);
 
-  notesStore.update((value) => {
-    return value.filter(({ id }) => {
-      return id !== note.id;
-    });
+  notesStore.update((state) => {
+    return {
+      ...state,
+      notes: state.notes.filter(({ id }) => {
+        return id !== note.id;
+      }),
+    };
   });
 };
 
-export const updateNote = (newNote) => {
+export const updateNote = (newNote: Note) => {
   api.updateNote(newNote);
 
-  notesStore.update((value) => {
-    return value.map((note) => {
-      if (note.id === newNote.id) {
-        return {
-          ...note,
-          ...newNote,
-        };
-      }
+  notesStore.update((state) => {
+    return {
+      ...state,
+      notes: state.notes.map((note) => {
+        if (note.id === newNote.id) {
+          return {
+            ...note,
+            ...newNote,
+          };
+        }
 
-      return note;
-    });
+        return note;
+      }),
+    };
   });
 };
+
+init();
 
 export default notesStore;

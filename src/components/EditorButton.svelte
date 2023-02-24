@@ -1,5 +1,5 @@
-<script>
-  export let isActive;
+<script lang="ts">
+  export let isActive: boolean;
 </script>
 
 <button class="editor_button {isActive ? 'is_active' : ''}" on:click>

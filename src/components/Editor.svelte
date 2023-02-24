@@ -1,11 +1,6 @@
-<script>
-  import {
-    createEventDispatcher,
-    onMount,
-    onDestroy,
-    afterUpdate,
-  } from 'svelte';
-  import { Editor } from '@tiptap/core';
+<script lang="ts">
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { Editor, EditorOptions } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
   import TaskList from '@tiptap/extension-task-list';
   import TaskItem from '@tiptap/extension-task-item';
@@ -17,13 +12,14 @@
   import UnorderedListIcon from '../icons/UnorderedListIcon.svelte';
   import OrderedListIcon from '../icons/OrderedListIcon.svelte';
   import ParagraphIcon from '../icons/ParagraphIcon.svelte';
+  import type { EditorChangeEvent } from 'src/types';
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{ change: EditorChangeEvent }>();
 
-  let element;
-  let editor;
-  export let content;
-  let prevContent;
+  let element: HTMLDivElement;
+  let editor: Editor;
+  export let content: Partial<Element>;
+  let prevContent: Partial<Element>;
 
   $: {
     if (prevContent !== undefined && prevContent !== content) {
@@ -33,7 +29,7 @@
   }
 
   onMount(() => {
-    editor = new Editor({
+    const editorOptions: Partial<EditorOptions> = {
       autofocus: true,
       content,
       editorProps: {
@@ -58,7 +54,8 @@
 
         dispatch('change', { json });
       },
-    });
+    };
+    editor = new Editor(editorOptions);
   });
 
   onDestroy(() => {

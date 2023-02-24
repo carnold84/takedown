@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import Editor from './components/Editor.svelte';
   import AddIcon from './icons/AddIcon.svelte';
   import CompleteIcon from './icons/CompleteIcon.svelte';
@@ -10,50 +11,45 @@
     removeNote,
     updateNote,
   } from './stores/notesStore';
+  import type { EditorChangeEvent, Note } from './types';
 
-  let editedNote = null;
-  let isMenuVisible = false;
-  let isSaving = false;
-  let notes = [];
-  let timeoutId = null;
-  let title;
+  let selectedNote: Note | null = null;
+  let isMenuVisible: boolean = false;
+  let isSaveRequired: boolean = false;
+  let isSaving: boolean = false;
+  let notes: Note[] = [];
+  let timeoutId: NodeJS.Timeout = null;
 
   const onToggleMenu = () => {
     isMenuVisible = !isMenuVisible;
   };
 
-  const onSelectNote = (note) => {
-    if (note) {
-      editedNote = { ...note };
-      title = editedNote.title;
-    } else {
-      editedNote = null;
-    }
-
+  const selectNote = (note: Note) => {
+    selectedNote = note ?? null;
     isMenuVisible = false;
   };
 
   const onAddNote = () => {
-    const note = addNote();
+    const note: Note = addNote();
 
-    onSelectNote(note);
+    selectNote(note);
     isMenuVisible = false;
   };
 
-  const onRemoveNote = (note) => {
+  const onRemoveNote = (note: Note) => {
     removeNote(note);
 
-    if (note.id === editedNote.id) {
-      console.log('CLEAR');
-      onSelectNote(undefined);
+    if (note.id === selectedNote.id) {
+      selectNote(undefined);
     }
   };
 
-  const debouncedUpdateNote = (data) => {
+  const debouncedUpdateNote = (data: Partial<Note>) => {
+    isSaveRequired = true;
     clearTimeout(timeoutId);
 
     const updatedNote = {
-      ...editedNote,
+      ...selectedNote,
       ...data,
     };
 
@@ -63,33 +59,46 @@
       updateNote(updatedNote);
       setTimeout(() => {
         isSaving = false;
+        isSaveRequired = false;
       }, 500);
     }, 2000);
   };
 
-  const onChange = (evt) => {
-    let update;
-
-    if (evt.detail) {
-      update = {
-        content: evt.detail.json,
-      };
-    } else {
-      update = {
-        title: evt.target.value,
-      };
-      title = update.title;
-    }
-
-    debouncedUpdateNote(update);
+  const onEditorChange = (evt: CustomEvent<EditorChangeEvent>) => {
+    debouncedUpdateNote({
+      content: evt.detail.json,
+    });
   };
 
-  // subscribe to get notes when they are updated
-  notesStore.subscribe((value) => {
-    notes = value;
+  const onTitleChange = (evt: Event) => {
+    debouncedUpdateNote({
+      title: (evt.target as HTMLInputElement).value,
+    });
+  };
 
-    if (!editedNote) {
-      onSelectNote(notes[0]);
+  const onWindowClose = (evt: BeforeUnloadEvent) => {
+    if (isSaveRequired) {
+      evt.preventDefault();
+      evt.returnValue = '';
+      confirm('You have unsaved notes. Are you sure you want to leave?');
+    }
+  };
+
+  onMount(() => {
+    console.log('MOUNT');
+    window.addEventListener('beforeunload', onWindowClose);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('beforeunload', onWindowClose);
+  });
+
+  // subscribe to get notes when they are updated
+  notesStore.subscribe((state) => {
+    notes = state.notes;
+
+    if (!selectedNote) {
+      selectNote(notes[0]);
     }
   });
 </script>
@@ -112,7 +121,7 @@
     </div>
   </div>
   <div class="flex flex-grow w-full overflow-hidden bg-neutral-900">
-    <div
+    <button
       class="absolute h-full w-full left-0 top-0 block lg:hidden bg-black/25 z-10"
       class:block={isMenuVisible === true}
       class:hidden={isMenuVisible === false}
@@ -124,7 +133,7 @@
       class:hidden={isMenuVisible === false}
     >
       <div
-        class="h-12 flex items-center justify-between bg-neutral-800 border-b border-neutral-500 p-3"
+        class="h-14 flex items-center justify-between bg-neutral-800 border-b border-neutral-500 px-4"
       >
         <h2 class="text-zinc-400">Notes</h2>
         <button
@@ -135,7 +144,7 @@
           <AddIcon />
         </button>
       </div>
-      <div class="overflow-auto p-5">
+      <div class="overflow-auto p-4">
         {#if notes.length === 0}
           <p class="text-sm text-center text-zinc-400 my-3">No Notes</p>
         {:else}
@@ -143,16 +152,16 @@
             {#each notes as note}
               <li
                 class="flex items-center h-12 text-sm text-zinc-400 hover:text-zinc-200 rounded-md cursor-pointer mb-2 {note.id ===
-                editedNote?.id
+                selectedNote?.id
                   ? 'text-zinc-200 bg-neutral-600'
                   : ''}"
               >
-                <div
+                <button
                   class="h-full flex items-center grow text-ellipsis overflow-hidden whitespace-nowrap pl-5"
-                  on:click={() => onSelectNote(note)}
+                  on:click={() => selectNote(note)}
                 >
-                  {editedNote?.id === note.id ? title : note.title}
-                </div>
+                  {note.title}
+                </button>
                 <div class="px-2">
                   <button
                     class="flex items-center justify-center h-10 w-10 text-zinc-500 hover:text-zinc-300"
@@ -170,25 +179,29 @@
     <div
       class="h-full flex flex-col flex-grow lg:w-8/12 xl:w-9/12 bg-neutral-900 text-zinc-200 z-0"
     >
-      {#if editedNote}
+      {#if selectedNote}
         <div
           class="flex flex-shrink-0 items-center h-14 border-b border-neutral-600 px-5"
         >
           <input
             class="grow text-xl bg-transparent outline-0 focus:outline-none"
-            value={title}
-            on:input={onChange}
+            value={selectedNote.title}
+            on:input={onTitleChange}
           />
-          <div class="text-zinc-500">
+          <div>
             {#if isSaving}
-              <SavingIcon />
+              <span class="text-zinc-200">
+                <SavingIcon />
+              </span>
             {:else}
-              <CompleteIcon />
+              <span class="text-zinc-500">
+                <CompleteIcon />
+              </span>
             {/if}
           </div>
         </div>
         <div class="relative grow overflow-hidden">
-          <Editor content={editedNote.content} on:change={onChange} />
+          <Editor content={selectedNote.content} on:change={onEditorChange} />
         </div>
       {/if}
     </div>
